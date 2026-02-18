@@ -1,0 +1,203 @@
+.map-view {
+  width: 100%;
+}
+
+.map-layout {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.regions-sidebar {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.regions-sidebar h2 {
+  color: #333;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.regions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.region-item {
+  padding: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  user-select: none;
+}
+
+.region-item:hover {
+  border-color: #667eea;
+  transform: translateX(4px);
+}
+
+.region-item.active {
+  border-color: #667eea;
+  background: #f0f4ff;
+}
+
+.region-item h3 {
+  color: #333;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.region-count {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.gi-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.gi-tag-badge {
+  background: #667eea;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.map-container {
+  height: 600px;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.popup-content {
+  min-width: 220px;
+  max-width: 300px;
+}
+
+.popup-content h3 {
+  color: #333;
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+}
+
+.popup-content p {
+  margin: 0.4rem 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.popup-gi-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.gi-tag-badge-small {
+  background: #667eea;
+  color: white;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+}
+
+.selected-region-details {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 2rem;
+}
+
+.selected-region-details h2 {
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.region-stats {
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.region-products-preview {
+  margin-top: 1.5rem;
+}
+
+.region-products-preview h3 {
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.products-grid-mini {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.product-mini-card {
+  background: #f9f9f9;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  transition: transform 0.3s;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.product-mini-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.product-mini-card img {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+}
+
+.product-mini-card h4 {
+  font-size: 0.9rem;
+  color: #333;
+  margin-bottom: 0.25rem;
+}
+
+.product-mini-card .product-gi {
+  font-size: 0.75rem;
+  color: #667eea;
+  font-weight: 600;
+}
+
+.product-price-mini {
+  font-size: 0.8rem;
+  color: #667eea;
+  font-weight: bold;
+  margin-top: 0.25rem;
+}
+
+@media (max-width: 968px) {
+  .map-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .regions-sidebar {
+    max-height: 300px;
+  }
+}
