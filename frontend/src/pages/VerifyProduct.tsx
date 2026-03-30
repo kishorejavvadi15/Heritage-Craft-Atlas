@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { productService, Product } from '../services/api';
+import { getProductDisplayImage, getProductFallbackImage } from '../utils/productImages';
 import './VerifyProduct.css';
 
 const VerifyProduct: React.FC = () => {
@@ -22,7 +23,17 @@ const VerifyProduct: React.FC = () => {
     setError(null);
     setResult(null);
     try {
-      const response = await productService.verifyProduct(barcode);
+      let lookupValue = barcode.trim();
+      if (lookupValue.includes('/verify?barcode=')) {
+        try {
+          const url = new URL(lookupValue);
+          lookupValue = url.searchParams.get('barcode') || lookupValue;
+        } catch {
+          lookupValue = lookupValue.split('barcode=')[1] || lookupValue;
+        }
+      }
+
+      const response = await productService.verifyProduct(lookupValue);
       setResult({
         verified: response.verified,
         product: response.product,
@@ -54,7 +65,7 @@ const VerifyProduct: React.FC = () => {
             type="text"
             value={barcode}
             onChange={(e) => setBarcode(e.target.value)}
-            placeholder="e.g. HC-KOND-001 or paste scanned code"
+            placeholder="e.g. HC-KOND-001 or paste a verification link"
             disabled={loading}
             autoFocus
           />
@@ -66,7 +77,7 @@ const VerifyProduct: React.FC = () => {
 
       {error && (
         <div className="verify-error">
-          <span className="verify-error-icon">⚠️</span>
+          <span className="verify-error-icon">!</span>
           {error}
         </div>
       )}
@@ -74,18 +85,17 @@ const VerifyProduct: React.FC = () => {
       {result && !error && result.product && (
         <div className="verify-result success">
           <div className="verify-badge">
-            <span className="verify-badge-icon">✓</span>
+            <span className="verify-badge-icon">OK</span>
             <span>Verified by Heritage Atlas</span>
           </div>
           <div className="verify-result-card">
             {result.product.image_url ? (
               <img
-                src={result.product.image_url}
+                src={getProductDisplayImage(result.product)}
                 alt={result.product.name}
                 className="verify-result-image"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src =
-                    'https://via.placeholder.com/200x200?text=No+Image';
+                  (e.target as HTMLImageElement).src = getProductFallbackImage(result.product!);
                 }}
               />
             ) : (
@@ -94,9 +104,9 @@ const VerifyProduct: React.FC = () => {
             <div className="verify-result-details">
               <h2>{result.product.name}</h2>
               <p className="verify-result-meta">
-                <span>📍 {result.product.region}</span>
-                <span>🏷️ {result.product.gi_tag}</span>
-                <span>👨‍🎨 {result.product.artisan_name}</span>
+                <span>Region: {result.product.region}</span>
+                <span>GI Tag: {result.product.gi_tag}</span>
+                <span>Artisan: {result.product.artisan_name}</span>
               </p>
               {result.product.barcode && (
                 <p className="verify-result-barcode">Code: <strong>{result.product.barcode}</strong></p>

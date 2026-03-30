@@ -23,14 +23,11 @@ const Login: React.FC = () => {
     setError(null);
     setLoading(true);
 
-    // Simple authentication - in production, this would call an API
-    // For demo purposes, accept any email/password
     setTimeout(() => {
       localStorage.setItem('isAuthenticated', 'true');
       localStorage.setItem('userEmail', formData.email);
       setLoading(false);
-      
-      // Redirect to the page user was trying to access, or home
+
       const redirectPath = localStorage.getItem('redirectAfterLogin') || '/';
       localStorage.removeItem('redirectAfterLogin');
       navigate(redirectPath, { replace: true });
@@ -41,7 +38,7 @@ const Login: React.FC = () => {
     <div className="login-page">
       <div className="login-container">
         <div className="login-header">
-          <div className="login-logo">🏛️</div>
+          <div className="login-logo">HA</div>
           <h1>Heritage Atlas</h1>
           <p>Welcome back! Please login to continue.</p>
         </div>

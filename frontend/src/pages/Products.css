@@ -2,16 +2,42 @@
   width: 100%;
 }
 
+.products-page-header,
+.saved-products-header,
+.section-heading,
+.artisans-hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  align-items: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+.products-page-header h1,
+.saved-products-header h1,
+.artisans-hero h1 {
+  color: #2f2a25;
+  margin-bottom: 0.4rem;
+}
+
+.products-page-header p,
+.saved-products-header p,
+.artisans-hero p {
+  color: #6b6258;
+  max-width: 700px;
+}
+
 .filters {
   background: white;
   padding: 1.5rem;
-  border-radius: 12px;
-  margin-bottom: 2rem;
+  border-radius: 18px;
+  margin-bottom: 1rem;
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
   align-items: flex-end;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 14px 35px rgba(103, 80, 52, 0.08);
+  border: 1px solid rgba(145, 111, 65, 0.1);
 }
 
 .filter-group {
@@ -19,110 +45,227 @@
   flex-direction: column;
   gap: 0.5rem;
   flex: 1;
-  min-width: 200px;
+  min-width: 180px;
+}
+
+.filter-group-wide {
+  min-width: min(100%, 320px);
+  flex: 1.5;
 }
 
 .filter-group label {
   font-size: 0.9rem;
-  font-weight: 600;
-  color: #666;
+  font-weight: 700;
+  color: #6b6258;
 }
 
 .filter-group select,
-.filter-group input {
-  padding: 0.75rem;
-  border: 2px solid #e0e0e0;
-  border-radius: 6px;
+.filter-group input,
+.artisans-search {
+  padding: 0.8rem 0.9rem;
+  border: 1px solid #d8ccbc;
+  border-radius: 10px;
   font-size: 1rem;
-  transition: border-color 0.3s;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background: #fffdf9;
 }
 
 .filter-group select:focus,
-.filter-group input:focus {
+.filter-group input:focus,
+.artisans-search:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #b86a2e;
+  box-shadow: 0 0 0 3px rgba(184, 106, 46, 0.15);
 }
 
-.product-grid {
+.filter-actions {
+  display: flex;
+  align-items: flex-end;
+}
+
+.results-summary {
+  display: flex;
+  justify-content: space-between;
+  color: #6b6258;
+  margin-bottom: 1.25rem;
+  font-weight: 600;
+}
+
+.product-grid,
+.saved-products-grid,
+.artisans-grid,
+.artisan-products-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 1.5rem;
 }
 
-.card {
+.card,
+.saved-product-card,
+.artisan-card,
+.artisan-product-card {
   background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s, box-shadow 0.3s;
+  border-radius: 18px;
+  padding: 1.2rem;
+  box-shadow: 0 16px 35px rgba(104, 89, 71, 0.1);
+  transition: transform 0.25s, box-shadow 0.25s;
+  border: 1px solid rgba(145, 111, 65, 0.08);
 }
 
-.card:hover {
+.card:hover,
+.saved-product-card:hover,
+.artisan-card:hover,
+.artisan-product-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 20px 45px rgba(104, 89, 71, 0.14);
 }
 
-.product-card {
+.product-card,
+.saved-product-card,
+.artisan-card,
+.artisan-product-card {
   text-decoration: none;
   color: inherit;
+}
+
+.product-card-actions,
+.saved-product-topbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.75rem;
+}
+
+.save-product-button {
+  border: 1px solid #d8ccbc;
+  background: #fff;
+  color: #7a5430;
+  border-radius: 999px;
+  padding: 0.45rem 0.9rem;
+  font-weight: 700;
   cursor: pointer;
 }
 
-.product-image {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  border-radius: 8px;
-  margin-bottom: 1rem;
+.save-product-button.is-saved {
+  background: #7a5430;
+  border-color: #7a5430;
+  color: #fff;
 }
 
-.product-image-placeholder {
+.product-image,
+.saved-product-image,
+.artisan-card-image,
+.artisan-product-image {
   width: 100%;
-  height: 200px;
-  background: #f0f0f0;
-  border-radius: 8px;
+  height: 220px;
+  display: block;
+  object-fit: cover;
+  border-radius: 14px;
+  margin-bottom: 1rem;
+  background: #f4efe4;
+}
+
+.product-image-placeholder,
+.saved-product-image.placeholder,
+.artisan-card-image.placeholder,
+.artisan-product-image.placeholder {
+  width: 100%;
+  height: 220px;
+  background: linear-gradient(135deg, #f4efe4 0%, #e6dcc7 100%);
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #999;
+  color: #7b6a4f;
+  font-weight: 700;
   margin-bottom: 1rem;
 }
 
-.product-card h3 {
-  color: #333;
+.product-card-content h3,
+.saved-product-card h3,
+.artisan-card h2,
+.artisan-product-card h3 {
+  color: #2f2a25;
   margin-bottom: 0.5rem;
 }
 
 .product-region,
 .product-gi-tag,
-.product-artisan {
-  color: #666;
-  font-size: 0.9rem;
+.product-artisan,
+.product-category,
+.saved-product-card p,
+.artisan-card p,
+.artisan-product-card p {
+  color: #6b6258;
+  font-size: 0.95rem;
   margin: 0.25rem 0;
 }
 
-.product-price {
-  color: #667eea;
-  font-weight: bold;
+.product-price,
+.saved-product-price,
+.artisan-product-price {
+  color: #b86a2e;
+  font-weight: 700;
   font-size: 1.1rem;
-  margin-top: 0.5rem;
+  margin-top: 0.7rem;
 }
 
+.saved-product-tag,
+.artisan-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f4ebe1;
+  color: #8a5421;
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.artisan-card-body,
+.artisan-product-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.artisan-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.saved-empty-state,
 .no-products {
   text-align: center;
   padding: 3rem;
   background: white;
-  border-radius: 12px;
-  color: #666;
+  border-radius: 18px;
+  color: #6b6258;
+  box-shadow: 0 14px 35px rgba(103, 80, 52, 0.08);
 }
 
 @media (max-width: 768px) {
-  .product-grid {
+  .product-grid,
+  .saved-products-grid,
+  .artisans-grid,
+  .artisan-products-grid {
     grid-template-columns: 1fr;
   }
 
-  .filters {
+  .filters,
+  .products-page-header,
+  .saved-products-header,
+  .section-heading,
+  .artisans-hero {
     flex-direction: column;
+    align-items: stretch;
+  }
+
+  .results-summary {
+    flex-direction: column;
+    gap: 0.35rem;
   }
 
   .filter-group {

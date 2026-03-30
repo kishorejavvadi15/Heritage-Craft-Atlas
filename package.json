@@ -1,0 +1,17 @@
+{
+  "name": "heritage-craft-atlas",
+  "private": true,
+  "workspaces": [
+    "frontend"
+  ],
+  "engines": {
+    "node": ">=20 <25",
+    "npm": ">=10"
+  },
+  "scripts": {
+    "start": "npm run start --workspace frontend",
+    "build": "npm run build --workspace frontend",
+    "test": "npm run test --workspace frontend",
+    "backend:start": "python -m uvicorn main:app --reload --app-dir backend"
+  }
+}

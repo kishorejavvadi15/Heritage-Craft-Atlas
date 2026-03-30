@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { productService } from '../services/api';
+import { Product, productService } from '../services/api';
 import './UploadProduct.css';
 
 const UploadProduct: React.FC = () => {
@@ -8,6 +8,7 @@ const UploadProduct: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [createdProduct, setCreatedProduct] = useState<Product | null>(null);
   const [regions, setRegions] = useState<string[]>([]);
   const [giTags, setGITags] = useState<string[]>([]);
 
@@ -69,7 +70,7 @@ const UploadProduct: React.FC = () => {
       const response = await productService.createProduct(submitData);
       if (response.success) {
         setSuccess(true);
-        // Clear form after successful upload
+        setCreatedProduct(response.product);
         setFormData({
           name: '',
           description: '',
@@ -86,8 +87,8 @@ const UploadProduct: React.FC = () => {
           cultural_story: '',
         });
         setTimeout(() => {
-          navigate('/');
-        }, 1500);
+          navigate(`/products/${response.product._id}`);
+        }, 1800);
       }
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to upload product. Please check all required fields.');
@@ -104,13 +105,18 @@ const UploadProduct: React.FC = () => {
 
       {success && (
         <div className="success-message">
-          ✅ Product uploaded successfully! Redirecting...
+          Success: product uploaded successfully. Redirecting to the detail page...
+          {createdProduct?.barcode && (
+            <div style={{ marginTop: '0.75rem' }}>
+              Verification code: <strong>{createdProduct.barcode}</strong>
+            </div>
+          )}
         </div>
       )}
 
       {error && (
         <div className="error-message">
-          ❌ {error}
+          Error: {error}
         </div>
       )}
 
@@ -236,7 +242,7 @@ const UploadProduct: React.FC = () => {
 
         <div className="form-row">
           <div className="form-group">
-            <label htmlFor="price">Price (₹)</label>
+            <label htmlFor="price">Price (Rs.)</label>
             <input
               type="number"
               id="price"

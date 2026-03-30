@@ -318,6 +318,126 @@ sample_products = [
         "created_at": datetime.utcnow(),
         "updated_at": datetime.utcnow(),
         "is_active": True
+    },
+    {
+        "name": "Lucknow Chikankari Kurta",
+        "description": "Hand-embroidered Chikankari kurta from Lucknow featuring delicate whitework and fine floral motifs stitched by skilled artisans.",
+        "gi_tag": "Lucknow Chikan Craft",
+        "region": "Uttar Pradesh",
+        "artisan_name": "Shabana Khatoon",
+        "artisan_contact": "",
+        "price": 3200.00,
+        "category": "Embroidery",
+        "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Chikankari%20of%20lucknow.jpg",
+        "location": {
+            "latitude": 26.8467,
+            "longitude": 80.9462
+        },
+        "cultural_story": "Lucknow Chikan Craft is celebrated for its elegant shadow work, floral jaali patterns, and hand embroidery traditions that flourished under Awadhi patronage. It remains one of the most recognizable textile crafts of North India.",
+        "barcode": "HC-CHIK-016",
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow(),
+        "is_active": True
+    },
+    {
+        "name": "Banaras Brocade Saree",
+        "description": "Rich silk saree woven in Varanasi with brocade detailing and traditional motifs inspired by Mughal floral and architectural patterns.",
+        "gi_tag": "Banaras Brocades and Sarees",
+        "region": "Uttar Pradesh",
+        "artisan_name": "Sajid Ansari",
+        "artisan_contact": "",
+        "price": 14500.00,
+        "category": "Textiles",
+        "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Banarasi%20Silk%20Saree.jpg",
+        "location": {
+            "latitude": 25.3176,
+            "longitude": 82.9739
+        },
+        "cultural_story": "Banaras Brocades and Sarees are famed for silk weaving, zari work, and opulent ornamentation. The weaving tradition in Varanasi has long been associated with ceremonial textiles and heirloom craftsmanship.",
+        "barcode": "HC-BANA-017",
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow(),
+        "is_active": True
+    },
+    {
+        "name": "Kolhapuri Chappal Pair",
+        "description": "Handcrafted leather Kolhapuri chappals with braided straps and traditional vegetable-tanned finish, designed for everyday durability.",
+        "gi_tag": "Kolhapuri Chappal",
+        "region": "Maharashtra",
+        "artisan_name": "Datta Jadhav",
+        "artisan_contact": "",
+        "price": 1900.00,
+        "category": "Footwear",
+        "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Kolhapuri%20Chappals%20in%20roadside%20shop%20in%20Kolhapur1.jpg",
+        "location": {
+            "latitude": 16.7050,
+            "longitude": 74.2433
+        },
+        "cultural_story": "Kolhapuri Chappals are traditional handmade leather sandals identified with western Maharashtra. They are known for durable hand-stitching, open silhouettes, and regional design variations passed across artisan communities.",
+        "barcode": "HC-KOLH-018",
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow(),
+        "is_active": True
+    },
+    {
+        "name": "Chanderi Handwoven Saree",
+        "description": "Lightweight Chanderi saree woven with a soft sheen, known for airy texture, fine yarn counts, and elegant woven borders.",
+        "gi_tag": "Chanderi Sarees",
+        "region": "Madhya Pradesh",
+        "artisan_name": "Rekha Jain",
+        "artisan_contact": "",
+        "price": 7800.00,
+        "category": "Textiles",
+        "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Chanderi%20saree.webp",
+        "location": {
+            "latitude": 24.7139,
+            "longitude": 78.1389
+        },
+        "cultural_story": "Chanderi weaving is prized for its feather-light fabric and lustrous finish. The craft combines cotton, silk, and zari traditions and has long held a place in ceremonial and festive wardrobes.",
+        "barcode": "HC-CHAN-019",
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow(),
+        "is_active": True
+    },
+    {
+        "name": "Muga Silk Mekhela Chador",
+        "description": "Traditional Assamese two-piece drape woven from natural golden Muga silk, valued for its distinctive glow and durability.",
+        "gi_tag": "Muga Silk of Assam",
+        "region": "Assam",
+        "artisan_name": "Rupali Bora",
+        "artisan_contact": "",
+        "price": 16500.00,
+        "category": "Textiles",
+        "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Assam%20Muga%20Silk%20Mekhela%20Chador.jpg",
+        "location": {
+            "latitude": 26.1445,
+            "longitude": 91.7362
+        },
+        "cultural_story": "Muga silk is one of Assam's signature textile traditions and is celebrated for its natural golden tone. Mekhela Chador woven from Muga silk is central to Assamese festive and ceremonial dress.",
+        "barcode": "HC-MUGA-020",
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow(),
+        "is_active": True
+    },
+    {
+        "name": "Aranmula Metal Mirror",
+        "description": "Handcrafted Aranmula kannadi made from a special metal alloy and polished to create a reflective mirror surface without glass.",
+        "gi_tag": "Aranmula Kannadi",
+        "region": "Kerala",
+        "artisan_name": "Gopalakrishnan Achari",
+        "artisan_contact": "",
+        "price": 6200.00,
+        "category": "Metalwork",
+        "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Aranmula%20Kannadi.jpg",
+        "location": {
+            "latitude": 9.3250,
+            "longitude": 76.6800
+        },
+        "cultural_story": "Aranmula Kannadi is a distinctive handcrafted metal mirror tradition from Kerala. Its reflective surface is created through alloy casting and polishing techniques guarded within artisan families over generations.",
+        "barcode": "HC-ARAN-021",
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow(),
+        "is_active": True
     }
 ]
 

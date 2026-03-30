@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { Link, useLocation } from 'react-router-dom';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { productService, Region, Product } from '../services/api';
+import { getApiErrorMessage, productService, Region, Product } from '../services/api';
 import './MapView.css';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -39,22 +39,21 @@ const MapView: React.FC = () => {
           productService.getProducts({ limit: 1000 })
         ]);
         setRegions(regionsRes.regions || []);
-        // Filter only products with valid coordinates
         const productsWithLocation = (productsRes.products || []).filter(
           (p: Product) => p.location?.latitude && p.location?.longitude
         );
         setAllProducts(productsWithLocation);
+        setError(null);
         setLoading(false);
       } catch (err) {
-        setError('Failed to load map data');
+        setError(getApiErrorMessage(err, 'Failed to load map data.'));
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [location.key]); // Refresh when page is visited
+  }, [location.key]);
 
-  // Handle URL parameters for centering map
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const lat = params.get('lat');
@@ -69,7 +68,6 @@ const MapView: React.FC = () => {
     if (region.location?.latitude && region.location?.longitude) {
       setMapCenter([region.location.latitude, region.location.longitude]);
     } else if (region.products && region.products.length > 0) {
-      // Find first product with location in this region
       const productWithLocation = region.products.find(p => p.location?.latitude && p.location?.longitude);
       if (productWithLocation?.location) {
         setMapCenter([productWithLocation.location.latitude, productWithLocation.location.longitude]);
@@ -93,7 +91,7 @@ const MapView: React.FC = () => {
       </p>
       {allProducts.length > 0 && (
         <p style={{ color: '#667eea', marginBottom: '1rem', fontWeight: 600 }}>
-          📍 {allProducts.length} products with location markers on the map
+          {allProducts.length} products with location markers on the map
         </p>
       )}
 
@@ -133,7 +131,6 @@ const MapView: React.FC = () => {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             <MapCenter center={mapCenter} />
-            {/* Show individual product markers at exact locations */}
             {allProducts
               .filter(product => product.location?.latitude && product.location?.longitude)
               .map((product) => (
@@ -149,22 +146,22 @@ const MapView: React.FC = () => {
                   <Popup>
                     <div className="popup-content">
                       <h3>{product.name}</h3>
-                      <p><strong>📍 {product.region}</strong></p>
-                      <p>🏷️ <strong>GI Tag:</strong> {product.gi_tag}</p>
-                      <p>👨‍🎨 <strong>Artisan:</strong> {product.artisan_name}</p>
+                      <p><strong>Region: {product.region}</strong></p>
+                      <p><strong>GI Tag:</strong> {product.gi_tag}</p>
+                      <p><strong>Artisan:</strong> {product.artisan_name}</p>
                       {product.artisan_contact && (
-                        <p>📞 <strong>Contact:</strong> {product.artisan_contact}</p>
+                        <p><strong>Contact:</strong> {product.artisan_contact}</p>
                       )}
                       {product.price && (
-                        <p>💰 <strong>Price:</strong> ₹{product.price.toLocaleString()}</p>
+                        <p><strong>Price:</strong> Rs. {product.price.toLocaleString()}</p>
                       )}
                       {product.location && (
                         <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '0.5rem' }}>
-                          📍 Location: {product.location.latitude.toFixed(4)}, {product.location.longitude.toFixed(4)}
+                          Location: {product.location.latitude.toFixed(4)}, {product.location.longitude.toFixed(4)}
                         </p>
                       )}
-                      <Link 
-                        to={`/products/${product._id}`} 
+                      <Link
+                        to={`/products/${product._id}`}
                         className="btn btn-primary"
                         style={{ marginTop: '0.5rem', display: 'inline-block', fontSize: '0.85rem', padding: '0.5rem 1rem' }}
                       >
@@ -182,15 +179,15 @@ const MapView: React.FC = () => {
         <div className="selected-region-details">
           <h2>{selectedRegion.region}</h2>
           <p className="region-stats">
-            {selectedRegion.count} products • {selectedRegion.gi_tags?.length || 0} GI Tags
+            {selectedRegion.count} products | {selectedRegion.gi_tags?.length || 0} GI Tags
           </p>
           {selectedRegion.products && selectedRegion.products.length > 0 && (
             <div className="region-products-preview">
               <h3>Products from {selectedRegion.region}</h3>
               <div className="products-grid-mini">
                 {selectedRegion.products.slice(0, 6).map((product) => (
-                  <Link 
-                    key={product._id} 
+                  <Link
+                    key={product._id}
                     to={`/products/${product._id}`}
                     className="product-mini-card"
                   >
@@ -205,7 +202,7 @@ const MapView: React.FC = () => {
                     )}
                     <h4>{product.name}</h4>
                     <p className="product-gi">{product.gi_tag}</p>
-                    {product.price && <p className="product-price-mini">₹{product.price.toLocaleString()}</p>}
+                    {product.price && <p className="product-price-mini">Rs. {product.price.toLocaleString()}</p>}
                   </Link>
                 ))}
               </div>

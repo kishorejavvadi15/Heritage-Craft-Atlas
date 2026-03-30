@@ -1,26 +1,30 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File, Form
+from fastapi import FastAPI, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 from pymongo import MongoClient
-from pymongo.errors import DuplicateKeyError
 from bson import ObjectId
-from typing import Optional, List, Dict
+from typing import Optional, Dict, Any
 from datetime import datetime
 import os
 import secrets
 from dotenv import load_dotenv
-import json
+import re
 
 load_dotenv()
 
 app = FastAPI(
     title="Heritage Atlas API",
-    description="Geographical Indication–Based Artisan Commerce Platform",
+    description="Geographical Indication-Based Artisan Commerce Platform",
     version="1.0.0"
 )
 
 # CORS Configuration
-cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
+default_cors_origins = ",".join([
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:3001",
+])
+cors_origins = os.getenv("CORS_ORIGINS", default_cors_origins).split(",")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
@@ -38,13 +42,46 @@ db = client[database_name]
 products_collection = db.products
 regions_collection = db.regions
 artisans_collection = db.artisans
+frontend_base_url = os.getenv("FRONTEND_BASE_URL", "http://localhost:3000").rstrip("/")
 
 
-# Helper function to convert ObjectId to string
-def serialize_doc(doc):
-    if doc and "_id" in doc:
-        doc["_id"] = str(doc["_id"])
-    return doc
+def slugify(value: str) -> str:
+    normalized = re.sub(r"[^a-zA-Z0-9]+", "-", value.lower()).strip("-")
+    return normalized or "artisan"
+
+
+def serialize_doc(doc: Optional[Dict[str, Any]]):
+    if not doc:
+        return doc
+
+    serialized = dict(doc)
+    if "_id" in serialized:
+        serialized["_id"] = str(serialized["_id"])
+    return serialized
+
+
+def normalize_barcode(barcode: str) -> str:
+    code = barcode.strip().upper()
+    if not code.startswith("HC-"):
+        code = f"HC-{code}"
+    return code
+
+
+def build_verification_url(barcode: Optional[str]) -> Optional[str]:
+    if not barcode:
+        return None
+    return f"{frontend_base_url}/verify?barcode={barcode}"
+
+
+def enrich_product(doc: Optional[Dict[str, Any]]):
+    product = serialize_doc(doc)
+    if not product:
+        return product
+
+    product["artisan_slug"] = slugify(product.get("artisan_name", ""))
+    product["verification_url"] = build_verification_url(product.get("barcode"))
+    product["verification_qr_value"] = product["verification_url"]
+    return product
 
 
 @app.get("/")
@@ -96,6 +133,7 @@ async def create_product(
         # Barcode: use provided or auto-generate unique code
         barcode_value = (barcode or "").strip() or None
         if barcode_value:
+            barcode_value = normalize_barcode(barcode_value)
             existing = products_collection.find_one({"barcode": barcode_value})
             if existing:
                 raise HTTPException(status_code=400, detail="A product with this barcode already exists")
@@ -118,7 +156,7 @@ async def create_product(
             "location": {
                 "latitude": lat_float,
                 "longitude": lng_float
-            } if lat_float and lng_float else None,
+            } if lat_float is not None and lng_float is not None else None,
             "cultural_story": cultural_story,
             "created_at": datetime.utcnow(),
             "updated_at": datetime.utcnow(),
@@ -126,65 +164,106 @@ async def create_product(
         }
         
         result = products_collection.insert_one(product)
-        product["_id"] = str(result.inserted_id)
+        product["_id"] = result.inserted_id
         
         return {
             "success": True,
             "message": "Product created successfully",
-            "product": serialize_doc(product)
+            "product": enrich_product(product)
         }
     except ValueError as e:
         raise HTTPException(status_code=400, detail=f"Invalid number format: {str(e)}")
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/api/products")
 async def get_products(
+    q: Optional[str] = None,
     region: Optional[str] = None,
     gi_tag: Optional[str] = None,
     artisan_name: Optional[str] = None,
+    category: Optional[str] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    sort_by: str = "newest",
+    sort_order: str = "desc",
     limit: int = 50,
     skip: int = 0
 ):
-    """Get products with optional filtering by region, GI tag, or artisan"""
+    """Get products with optional filtering, search, and sorting."""
     try:
         pipeline = []
         
-        # Match stage for filtering
         match_stage = {"is_active": True}
+        if q:
+            match_stage["$or"] = [
+                {"name": {"$regex": q, "$options": "i"}},
+                {"description": {"$regex": q, "$options": "i"}},
+                {"gi_tag": {"$regex": q, "$options": "i"}},
+                {"region": {"$regex": q, "$options": "i"}},
+                {"artisan_name": {"$regex": q, "$options": "i"}},
+                {"category": {"$regex": q, "$options": "i"}},
+                {"cultural_story": {"$regex": q, "$options": "i"}},
+            ]
         if region:
             match_stage["region"] = {"$regex": region, "$options": "i"}
         if gi_tag:
             match_stage["gi_tag"] = {"$regex": gi_tag, "$options": "i"}
         if artisan_name:
             match_stage["artisan_name"] = {"$regex": artisan_name, "$options": "i"}
+        if category:
+            match_stage["category"] = {"$regex": category, "$options": "i"}
+        if min_price is not None or max_price is not None:
+            price_filter: Dict[str, float] = {}
+            if min_price is not None:
+                price_filter["$gte"] = min_price
+            if max_price is not None:
+                price_filter["$lte"] = max_price
+            match_stage["price"] = price_filter
         
         pipeline.append({"$match": match_stage})
-        
-        # Sort by creation date (newest first)
-        pipeline.append({"$sort": {"created_at": -1}})
-        
-        # Pagination
+
+        sort_field_map = {
+            "newest": "created_at",
+            "oldest": "created_at",
+            "price": "price",
+            "name": "name",
+            "region": "region",
+        }
+        sort_field = sort_field_map.get(sort_by, "created_at")
+        sort_direction = 1 if sort_order == "asc" else -1
+        if sort_by == "oldest":
+            sort_direction = 1
+        pipeline.append({"$sort": {sort_field: sort_direction, "created_at": -1}})
+
         pipeline.append({"$skip": skip})
         pipeline.append({"$limit": limit})
         
         products = list(products_collection.aggregate(pipeline))
-        
-        # Get total count for pagination
         count_pipeline = [{"$match": match_stage}, {"$count": "total"}]
         count_result = list(products_collection.aggregate(count_pipeline))
         total = count_result[0]["total"] if count_result else 0
         
-        for product in products:
-            product = serialize_doc(product)
-        
         return {
             "success": True,
-            "products": products,
+            "products": [enrich_product(product) for product in products],
             "total": total,
             "limit": limit,
-            "skip": skip
+            "skip": skip,
+            "applied_filters": {
+                "q": q,
+                "region": region,
+                "gi_tag": gi_tag,
+                "artisan_name": artisan_name,
+                "category": category,
+                "min_price": min_price,
+                "max_price": max_price,
+                "sort_by": sort_by,
+                "sort_order": sort_order,
+            },
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -237,9 +316,7 @@ async def get_products_by_region():
         
         # Serialize ObjectIds
         for result in results:
-            for product in result.get("products", []):
-                if "_id" in product:
-                    product["_id"] = str(product["_id"])
+            result["products"] = [enrich_product(product) for product in result.get("products", [])]
         
         return {
             "success": True,
@@ -289,9 +366,7 @@ async def get_products_by_gi_tag():
         
         # Serialize ObjectIds
         for result in results:
-            for product in result.get("products", []):
-                if "_id" in product:
-                    product["_id"] = str(product["_id"])
+            result["products"] = [enrich_product(product) for product in result.get("products", [])]
         
         return {
             "success": True,
@@ -306,9 +381,7 @@ async def verify_product_by_barcode(barcode: Optional[str] = None):
     """Verify a product by barcode or verification code. Returns product if found."""
     if not barcode or not barcode.strip():
         raise HTTPException(status_code=400, detail="Barcode or verification code is required")
-    code = barcode.strip().upper()
-    if not code.startswith("HC-"):
-        code = "HC-" + code
+    code = normalize_barcode(barcode)
     try:
         product = products_collection.find_one({"barcode": code, "is_active": True})
         if not product:
@@ -318,7 +391,7 @@ async def verify_product_by_barcode(barcode: Optional[str] = None):
         return {
             "success": True,
             "verified": True,
-            "product": serialize_doc(product)
+            "product": enrich_product(product)
         }
     except HTTPException:
         raise
@@ -340,7 +413,7 @@ async def get_product(product_id: str):
         
         return {
             "success": True,
-            "product": serialize_doc(product)
+            "product": enrich_product(product)
         }
     except HTTPException:
         raise
@@ -418,6 +491,145 @@ async def get_gi_tags():
             "success": True,
             "gi_tags": gi_tags
         }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/categories")
+async def get_categories():
+    """Get all unique product categories with product counts."""
+    try:
+        pipeline = [
+            {"$match": {"is_active": True}},
+            {
+                "$group": {
+                    "_id": {"$ifNull": ["$category", "Traditional Craft"]},
+                    "count": {"$sum": 1},
+                }
+            },
+            {
+                "$project": {
+                    "category": "$_id",
+                    "count": 1,
+                    "_id": 0,
+                }
+            },
+            {"$sort": {"count": -1, "category": 1}},
+        ]
+        categories = list(products_collection.aggregate(pipeline))
+        return {"success": True, "categories": categories}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/artisans")
+async def get_artisans(search: Optional[str] = None, limit: int = 100, skip: int = 0):
+    """Get artisans aggregated from products."""
+    try:
+        match_stage: Dict[str, Any] = {"is_active": True}
+        if search:
+            match_stage["artisan_name"] = {"$regex": search, "$options": "i"}
+
+        pipeline = [
+            {"$match": match_stage},
+            {
+                "$group": {
+                    "_id": "$artisan_name",
+                    "product_count": {"$sum": 1},
+                    "regions": {"$addToSet": "$region"},
+                    "gi_tags": {"$addToSet": "$gi_tag"},
+                    "categories": {"$addToSet": "$category"},
+                    "artisan_contact": {"$first": "$artisan_contact"},
+                    "hero_image": {"$first": "$image_url"},
+                    "latest_story": {"$first": "$cultural_story"},
+                    "latest_product_name": {"$first": "$name"},
+                }
+            },
+            {"$sort": {"product_count": -1, "_id": 1}},
+            {"$skip": skip},
+            {"$limit": limit},
+        ]
+        artisans = list(products_collection.aggregate(pipeline))
+
+        total_pipeline = [
+            {"$match": match_stage},
+            {"$group": {"_id": "$artisan_name"}},
+            {"$count": "total"},
+        ]
+        total_result = list(products_collection.aggregate(total_pipeline))
+        total = total_result[0]["total"] if total_result else 0
+
+        formatted = []
+        for artisan in artisans:
+            name = artisan["_id"]
+            formatted.append(
+                {
+                    "name": name,
+                    "slug": slugify(name),
+                    "product_count": artisan["product_count"],
+                    "regions": artisan.get("regions", []),
+                    "gi_tags": artisan.get("gi_tags", []),
+                    "categories": [category for category in artisan.get("categories", []) if category],
+                    "artisan_contact": artisan.get("artisan_contact"),
+                    "hero_image": artisan.get("hero_image"),
+                    "latest_story": artisan.get("latest_story"),
+                    "latest_product_name": artisan.get("latest_product_name"),
+                }
+            )
+
+        return {"success": True, "artisans": formatted, "total": total}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/artisans/{artisan_slug}")
+async def get_artisan_detail(artisan_slug: str):
+    """Get a single artisan profile and all of their active products."""
+    try:
+        products = list(
+            products_collection.find(
+                {
+                    "is_active": True,
+                    "$expr": {
+                        "$eq": [
+                            {
+                                "$replaceAll": {
+                                    "input": {"$toLower": "$artisan_name"},
+                                    "find": " ",
+                                    "replacement": "-",
+                                }
+                            },
+                            artisan_slug,
+                        ]
+                    },
+                }
+            ).sort("created_at", -1)
+        )
+
+        if not products:
+            all_products = list(products_collection.find({"is_active": True, "artisan_name": {"$exists": True}}))
+            products = [product for product in all_products if slugify(product.get("artisan_name", "")) == artisan_slug]
+
+        if not products:
+            raise HTTPException(status_code=404, detail="Artisan not found")
+
+        first_product = products[0]
+        name = first_product.get("artisan_name", "")
+        profile = {
+            "name": name,
+            "slug": slugify(name),
+            "artisan_contact": first_product.get("artisan_contact"),
+            "regions": sorted({product.get("region") for product in products if product.get("region")}),
+            "gi_tags": sorted({product.get("gi_tag") for product in products if product.get("gi_tag")}),
+            "categories": sorted({product.get("category") for product in products if product.get("category")}),
+            "product_count": len(products),
+            "hero_image": first_product.get("image_url"),
+            "latest_story": next((product.get("cultural_story") for product in products if product.get("cultural_story")), None),
+            "products": [enrich_product(product) for product in products],
+        }
+        return {"success": True, "artisan": profile}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

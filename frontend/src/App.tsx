@@ -10,11 +10,19 @@ import UploadProduct from './pages/UploadProduct';
 import MapView from './pages/MapView';
 import VerifyProduct from './pages/VerifyProduct';
 import About from './pages/About';
+import Artisans from './pages/Artisans';
+import ArtisanDetail from './pages/ArtisanDetail';
+import SavedProducts from './pages/SavedProducts';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
-    <Router>
+    <Router
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+      }}
+    >
       <div className="App">
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -31,6 +39,9 @@ function App() {
                       <Route path="/products/:id" element={<ProductDetail />} />
                       <Route path="/upload" element={<UploadProduct />} />
                       <Route path="/map" element={<MapView />} />
+                      <Route path="/saved" element={<SavedProducts />} />
+                      <Route path="/artisans" element={<Artisans />} />
+                      <Route path="/artisans/:slug" element={<ArtisanDetail />} />
                       <Route path="/verify" element={<VerifyProduct />} />
                       <Route path="/about" element={<About />} />
                       <Route path="*" element={<Navigate to="/" replace />} />
