@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
+import { authStorage } from '../utils/auth';
 
 interface ProtectedRouteProps {
   children: React.ReactElement;
@@ -7,7 +8,7 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const location = useLocation();
-  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+  const isAuthenticated = authStorage.isAuthenticated();
 
   useEffect(() => {
     // Save the attempted URL if not authenticated

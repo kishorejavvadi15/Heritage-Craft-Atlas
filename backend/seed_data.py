@@ -28,7 +28,7 @@ sample_products = [
         "artisan_contact": "",
         "price": 1500.00,
         "category": "Traditional Toys",
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Kondapalli_toys_at_a_house_in_Vijayawada.jpg/800px-Kondapalli_toys_at_a_house_in_Vijayawada.jpg",  # Kondapalli wooden toys
+        "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Kondapalli_toys_at_a_house_in_Vijayawada.jpg",  # Kondapalli wooden toys
         "location": {
             "latitude": 16.5062,
             "longitude": 80.6480
@@ -68,7 +68,7 @@ sample_products = [
         "artisan_contact": "",
         "price": 12000.00,
         "category": "Textiles",
-        "image_url": "https://s7ap1.scene7.com/is/image/incredibleindia/pochampally-ikat-telangana-craft-hero?qlt=80&wid=800",  # Pochampally Ikat saree
+        "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Pochampally_fancy_silk_sareesIMG_0317.JPG",  # Pochampally Ikat saree
         "location": {
             "latitude": 17.3850,
             "longitude": 78.4867
@@ -88,7 +88,7 @@ sample_products = [
         "artisan_contact": "",
         "price": 3500.00,
         "category": "Metalwork",
-        "image_url": "https://www.giheritage.com/uploads/product/Black-Metal-Crafts-Bidriware-Decorative-Showpiece-Flower-Vase-h.jpg",  # Bidriware metal vase with silver inlay
+        "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Bidriware,%20Flower%20Vase.PNG",  # Bidriware metal vase with silver inlay
         "location": {
             "latitude": 17.9149,
             "longitude": 77.5041
@@ -188,7 +188,7 @@ sample_products = [
         "artisan_contact": "",
         "price": 3500.00,
         "category": "Paintings",
-        "image_url": "https://s7ap1.scene7.com/is/image/incredibleindia/warli-paintings-maharashtra-craft-hero?qlt=80&wid=800",  # Warli tribal painting
+        "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Warli%20painting%20in%20Warli.JPG",  # Warli tribal painting
         "location": {
             "latitude": 19.7515,
             "longitude": 75.7139
@@ -228,7 +228,7 @@ sample_products = [
         "artisan_contact": "",
         "price": 2800.00,
         "category": "Pottery",
-        "image_url": "https://s7ap1.scene7.com/is/image/incredibleindia/blue-pottery-jaipur-rajasthan-craft-hero?qlt=80&wid=800",  # Blue pottery vase from Jaipur
+        "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Jaipur%20Blue%20Pottery%20Vase%20with%20Raja-Rani%20Design.jpg",  # Blue pottery vase from Jaipur
         "location": {
             "latitude": 26.9124,
             "longitude": 75.7873
@@ -288,7 +288,7 @@ sample_products = [
         "artisan_contact": "",
         "price": 5500.00,
         "category": "Textiles",
-        "image_url": "https://s7ap1.scene7.com/is/image/incredibleindia/rogan-art-kutch-gujarat-craft-hero?qlt=80&wid=800",  # Rogan art fabric from Kutch
+        "image_url": "https://roganart.com/wp-content/uploads/2025/12/Rogan-painting-2.jpg",  # Rogan art fabric from Kutch
         "location": {
             "latitude": 23.0225,
             "longitude": 72.5714
@@ -308,7 +308,7 @@ sample_products = [
         "artisan_contact": "",
         "price": 4200.00,
         "category": "Metalwork",
-        "image_url": "https://s7ap1.scene7.com/is/image/incredibleindia/bastar-dhokra-chhattisgarh-craft-hero?qlt=80&wid=800",  # Dhokra metal sculpture from Chhattisgarh
+        "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Dhokra%20(couple).jpg",  # Dhokra metal sculpture from Chhattisgarh
         "location": {
             "latitude": 21.2787,
             "longitude": 81.8661
@@ -368,7 +368,7 @@ sample_products = [
         "artisan_contact": "",
         "price": 1900.00,
         "category": "Footwear",
-        "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Kolhapuri%20Chappals%20in%20roadside%20shop%20in%20Kolhapur1.jpg",
+        "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Kolhapur_chappal.jpg",
         "location": {
             "latitude": 16.7050,
             "longitude": 74.2433

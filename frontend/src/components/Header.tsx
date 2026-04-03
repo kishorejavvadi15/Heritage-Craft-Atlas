@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Header.css';
 import { wishlistStorage } from '../utils/wishlist';
+import { authStorage } from '../utils/auth';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
-  const userEmail = localStorage.getItem('userEmail');
+  const userEmail = authStorage.getCurrentUserEmail();
   const [savedCount, setSavedCount] = useState(wishlistStorage.getAll().length);
 
   useEffect(() => {
@@ -15,8 +16,7 @@ const Header: React.FC = () => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('userEmail');
+    authStorage.logout();
     navigate('/login');
   };
 

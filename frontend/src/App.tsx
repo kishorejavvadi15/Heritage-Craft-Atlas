@@ -26,6 +26,7 @@ function App() {
       <div className="App">
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Login initialMode="register" />} />
           <Route
             path="/*"
             element={

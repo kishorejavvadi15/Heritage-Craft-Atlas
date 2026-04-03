@@ -16,7 +16,7 @@
   max-width: 450px;
 }
 
-cd cd .login-header {
+.login-header {
   text-align: center;
   margin-bottom: 2rem;
 }
@@ -39,6 +39,31 @@ cd cd .login-header {
 
 .login-form {
   width: 100%;
+}
+
+.auth-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.auth-switch-btn {
+  border: 1px solid #d8ddf2;
+  background: #f6f8ff;
+  color: #4d5d8a;
+  border-radius: 999px;
+  padding: 0.7rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.auth-switch-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: transparent;
 }
 
 .form-group {
@@ -104,6 +129,16 @@ cd cd .login-header {
   font-size: 0.9rem;
 }
 
+.success-message {
+  background: #d1e7dd;
+  color: #0f5132;
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border: 1px solid #badbcc;
+  font-size: 0.9rem;
+}
+
 .login-footer {
   margin-top: 1.5rem;
   text-align: center;
@@ -112,6 +147,12 @@ cd cd .login-header {
 .login-footer p {
   color: #999;
   font-size: 0.85rem;
+}
+
+.login-footer a {
+  color: #667eea;
+  font-weight: 600;
+  text-decoration: none;
 }
 
 @media (max-width: 768px) {

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Form
+from fastapi import FastAPI, HTTPException, Form, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pymongo import MongoClient
 from bson import ObjectId
@@ -40,14 +40,41 @@ database_name = os.getenv("DATABASE_NAME", "heritagecraft")
 client = MongoClient(mongodb_uri)
 db = client[database_name]
 products_collection = db.products
-regions_collection = db.regions
-artisans_collection = db.artisans
 frontend_base_url = os.getenv("FRONTEND_BASE_URL", "http://localhost:3000").rstrip("/")
 
 
 def slugify(value: str) -> str:
     normalized = re.sub(r"[^a-zA-Z0-9]+", "-", value.lower()).strip("-")
     return normalized or "artisan"
+
+
+def build_contains_regex(value: Optional[str]) -> Optional[Dict[str, str]]:
+    if not value or not value.strip():
+        return None
+    return {"$regex": re.escape(value.strip()), "$options": "i"}
+
+
+def clean_text(value: Optional[str]) -> Optional[str]:
+    if value is None:
+        return None
+    cleaned = value.strip()
+    return cleaned or None
+
+
+def resolve_query_value(value: Any) -> Any:
+    return value.default if hasattr(value, "default") else value
+
+
+def normalize_pagination(limit: Any, skip: Any) -> tuple[int, int]:
+    limit_value = resolve_query_value(limit)
+    skip_value = resolve_query_value(skip)
+
+    if limit_value < 1 or limit_value > 200:
+        raise HTTPException(status_code=400, detail="limit must be between 1 and 200")
+    if skip_value < 0:
+        raise HTTPException(status_code=400, detail="skip must be greater than or equal to 0")
+
+    return int(limit_value), int(skip_value)
 
 
 def serialize_doc(doc: Optional[Dict[str, Any]]):
@@ -99,7 +126,7 @@ async def health_check():
         client.admin.command('ping')
         return {"status": "healthy", "database": "connected"}
     except Exception as e:
-        return {"status": "unhealthy", "error": str(e)}
+        raise HTTPException(status_code=503, detail={"status": "unhealthy", "error": str(e)})
 
 
 def generate_barcode() -> str:
@@ -190,32 +217,48 @@ async def get_products(
     max_price: Optional[float] = None,
     sort_by: str = "newest",
     sort_order: str = "desc",
-    limit: int = 50,
-    skip: int = 0
+    limit: int = Query(50, ge=1, le=200),
+    skip: int = Query(0, ge=0)
 ):
     """Get products with optional filtering, search, and sorting."""
     try:
+        limit, skip = normalize_pagination(limit, skip)
         pipeline = []
-        
+
+        q = clean_text(q)
+        region = clean_text(region)
+        gi_tag = clean_text(gi_tag)
+        artisan_name = clean_text(artisan_name)
+        category = clean_text(category)
+
         match_stage = {"is_active": True}
-        if q:
+        q_regex = build_contains_regex(q)
+        if q_regex:
             match_stage["$or"] = [
-                {"name": {"$regex": q, "$options": "i"}},
-                {"description": {"$regex": q, "$options": "i"}},
-                {"gi_tag": {"$regex": q, "$options": "i"}},
-                {"region": {"$regex": q, "$options": "i"}},
-                {"artisan_name": {"$regex": q, "$options": "i"}},
-                {"category": {"$regex": q, "$options": "i"}},
-                {"cultural_story": {"$regex": q, "$options": "i"}},
+                {"name": q_regex},
+                {"description": q_regex},
+                {"gi_tag": q_regex},
+                {"region": q_regex},
+                {"artisan_name": q_regex},
+                {"category": q_regex},
+                {"cultural_story": q_regex},
             ]
         if region:
-            match_stage["region"] = {"$regex": region, "$options": "i"}
+            region_regex = build_contains_regex(region)
+            if region_regex:
+                match_stage["region"] = region_regex
         if gi_tag:
-            match_stage["gi_tag"] = {"$regex": gi_tag, "$options": "i"}
+            gi_tag_regex = build_contains_regex(gi_tag)
+            if gi_tag_regex:
+                match_stage["gi_tag"] = gi_tag_regex
         if artisan_name:
-            match_stage["artisan_name"] = {"$regex": artisan_name, "$options": "i"}
+            artisan_regex = build_contains_regex(artisan_name)
+            if artisan_regex:
+                match_stage["artisan_name"] = artisan_regex
         if category:
-            match_stage["category"] = {"$regex": category, "$options": "i"}
+            category_regex = build_contains_regex(category)
+            if category_regex:
+                match_stage["category"] = category_regex
         if min_price is not None or max_price is not None:
             price_filter: Dict[str, float] = {}
             if min_price is not None:
@@ -237,7 +280,11 @@ async def get_products(
         sort_direction = 1 if sort_order == "asc" else -1
         if sort_by == "oldest":
             sort_direction = 1
-        pipeline.append({"$sort": {sort_field: sort_direction, "created_at": -1}})
+
+        sort_stage = {sort_field: sort_direction}
+        if sort_field != "created_at":
+            sort_stage["created_at"] = -1
+        pipeline.append({"$sort": sort_stage})
 
         pipeline.append({"$skip": skip})
         pipeline.append({"$limit": limit})
@@ -265,6 +312,8 @@ async def get_products(
                 "sort_order": sort_order,
             },
         }
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -523,12 +572,20 @@ async def get_categories():
 
 
 @app.get("/api/artisans")
-async def get_artisans(search: Optional[str] = None, limit: int = 100, skip: int = 0):
+async def get_artisans(
+    search: Optional[str] = None,
+    limit: int = Query(100, ge=1, le=200),
+    skip: int = Query(0, ge=0)
+):
     """Get artisans aggregated from products."""
     try:
+        limit, skip = normalize_pagination(limit, skip)
         match_stage: Dict[str, Any] = {"is_active": True}
+        search = clean_text(search)
         if search:
-            match_stage["artisan_name"] = {"$regex": search, "$options": "i"}
+            search_regex = build_contains_regex(search)
+            if search_regex:
+                match_stage["artisan_name"] = search_regex
 
         pipeline = [
             {"$match": match_stage},
@@ -578,6 +635,8 @@ async def get_artisans(search: Optional[str] = None, limit: int = 100, skip: int
             )
 
         return {"success": True, "artisans": formatted, "total": total}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
