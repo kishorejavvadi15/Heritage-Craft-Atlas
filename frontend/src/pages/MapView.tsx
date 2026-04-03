@@ -21,6 +21,32 @@ const MapCenter: React.FC<{ center: [number, number] }> = ({ center }) => {
   return null;
 };
 
+const hasValidLocation = (product: Product) =>
+  typeof product.location?.latitude === 'number' &&
+  typeof product.location?.longitude === 'number';
+
+const getAllProductsForMap = async () => {
+  const batchSize = 200;
+  const firstResponse = await productService.getProducts({ limit: batchSize, skip: 0 });
+  const firstBatch = firstResponse.products || [];
+  const total = typeof firstResponse.total === 'number' ? firstResponse.total : firstBatch.length;
+
+  if (total <= batchSize) {
+    return firstBatch;
+  }
+
+  const remainingRequests: Promise<any>[] = [];
+  for (let skip = batchSize; skip < total; skip += batchSize) {
+    remainingRequests.push(productService.getProducts({ limit: batchSize, skip }));
+  }
+
+  const remainingResponses = await Promise.all(remainingRequests);
+  return [
+    ...firstBatch,
+    ...remainingResponses.flatMap((response) => response.products || []),
+  ];
+};
+
 const MapView: React.FC = () => {
   const [regions, setRegions] = useState<Region[]>([]);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
@@ -36,12 +62,10 @@ const MapView: React.FC = () => {
       try {
         const [regionsRes, productsRes] = await Promise.all([
           productService.getProductsByRegion(),
-          productService.getProducts({ limit: 1000 })
+          getAllProductsForMap()
         ]);
         setRegions(regionsRes.regions || []);
-        const productsWithLocation = (productsRes.products || []).filter(
-          (p: Product) => p.location?.latitude && p.location?.longitude
-        );
+        const productsWithLocation = productsRes.filter(hasValidLocation);
         setAllProducts(productsWithLocation);
         setError(null);
         setLoading(false);
@@ -65,10 +89,10 @@ const MapView: React.FC = () => {
 
   const handleRegionClick = (region: Region) => {
     setSelectedRegion(region);
-    if (region.location?.latitude && region.location?.longitude) {
+    if (typeof region.location?.latitude === 'number' && typeof region.location?.longitude === 'number') {
       setMapCenter([region.location.latitude, region.location.longitude]);
     } else if (region.products && region.products.length > 0) {
-      const productWithLocation = region.products.find(p => p.location?.latitude && p.location?.longitude);
+      const productWithLocation = region.products.find(hasValidLocation);
       if (productWithLocation?.location) {
         setMapCenter([productWithLocation.location.latitude, productWithLocation.location.longitude]);
       }
@@ -132,7 +156,7 @@ const MapView: React.FC = () => {
             />
             <MapCenter center={mapCenter} />
             {allProducts
-              .filter(product => product.location?.latitude && product.location?.longitude)
+              .filter(hasValidLocation)
               .map((product) => (
                 <Marker
                   key={product._id}
