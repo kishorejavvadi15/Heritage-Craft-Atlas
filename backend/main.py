@@ -24,7 +24,11 @@ default_cors_origins = ",".join([
     "http://127.0.0.1:3000",
     "http://127.0.0.1:3001",
 ])
-cors_origins = os.getenv("CORS_ORIGINS", default_cors_origins).split(",")
+cors_origins = [
+    origin.strip()
+    for origin in os.getenv("CORS_ORIGINS", default_cors_origins).split(",")
+    if origin.strip()
+]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
