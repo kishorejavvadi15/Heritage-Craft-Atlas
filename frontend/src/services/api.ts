@@ -1,8 +1,10 @@
 import axios from 'axios';
 
+const DEFAULT_PRODUCTION_API_URL = 'https://heritagecraft-api.onrender.com';
+
 const API_URL =
   process.env.REACT_APP_API_URL ||
-  (process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : '');
+  (process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : DEFAULT_PRODUCTION_API_URL);
 
 const api = axios.create({
   baseURL: API_URL,
