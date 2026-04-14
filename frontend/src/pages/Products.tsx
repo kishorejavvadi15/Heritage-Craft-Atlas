@@ -4,6 +4,7 @@ import SaveProductButton from '../components/SaveProductButton';
 import { Category, getApiErrorMessage, ProductQueryParams, productService, Product } from '../services/api';
 import { getProductDisplayImage, getProductFallbackImage } from '../utils/productImages';
 import { wishlistStorage } from '../utils/wishlist';
+import { cartStorage } from '../utils/cart';
 import './Products.css';
 
 const ProductCardImage: React.FC<{ product: Product }> = ({ product }) => {
@@ -34,6 +35,7 @@ const Products: React.FC = () => {
   const [giTags, setGITags] = useState<string[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [savedIds, setSavedIds] = useState<string[]>(wishlistStorage.getAll());
+  const [cartIds, setCartIds] = useState<string[]>(cartStorage.getAll().map((item) => item.productId));
   const [total, setTotal] = useState(0);
 
   const [filters, setFilters] = useState({
@@ -54,6 +56,12 @@ const Products: React.FC = () => {
     const syncSavedIds = () => setSavedIds(wishlistStorage.getAll());
     window.addEventListener('wishlist-updated', syncSavedIds);
     return () => window.removeEventListener('wishlist-updated', syncSavedIds);
+  }, []);
+
+  useEffect(() => {
+    const syncCartIds = () => setCartIds(cartStorage.getAll().map((item) => item.productId));
+    window.addEventListener('cart-updated', syncCartIds);
+    return () => window.removeEventListener('cart-updated', syncCartIds);
   }, []);
 
   useEffect(() => {
@@ -149,11 +157,16 @@ const Products: React.FC = () => {
       <div className="products-page-header">
         <div>
           <h1>Browse Products</h1>
-          <p>Search by craft, region, artisan, or story and build your own saved collection.</p>
+          <p>Search by craft, region, artisan, or story, then save favorites or move straight into the online purchase flow.</p>
         </div>
-        <Link to="/saved" className="btn btn-secondary">
-          Saved Products ({savedIds.length})
-        </Link>
+        <div className="products-header-actions">
+          <Link to="/saved" className="btn btn-secondary">
+            Saved Products ({savedIds.length})
+          </Link>
+          <Link to="/cart" className="btn btn-primary">
+            View Cart ({cartIds.length})
+          </Link>
+        </div>
       </div>
 
       <div className="filters">
@@ -277,9 +290,10 @@ const Products: React.FC = () => {
         <div className="product-grid">
           {products.map((product) => {
             const isSaved = savedIds.includes(product._id || '');
+            const isInCart = cartIds.includes(product._id || '');
 
             return (
-              <Link key={product._id} to={`/products/${product._id}`} className="card product-card">
+              <article key={product._id} className="card product-card">
                 <div className="product-card-actions">
                   <SaveProductButton
                     saved={isSaved}
@@ -290,25 +304,50 @@ const Products: React.FC = () => {
                     }}
                   />
                 </div>
-                <ProductCardImage product={product} />
-                <div className="product-card-content">
-                  <h3>{product.name}</h3>
-                  <p className="product-region">Region: {product.region}</p>
-                  <p className="product-gi-tag">GI Tag: {product.gi_tag}</p>
-                  <p className="product-artisan">
-                    Artisan:{' '}
-                    {product.artisan_slug ? (
-                      <span className="product-artisan-link">{product.artisan_name}</span>
-                    ) : (
-                      product.artisan_name
+                <Link to={`/products/${product._id}`} className="product-card-link">
+                  <ProductCardImage product={product} />
+                  <div className="product-card-content">
+                    <div className="product-card-copy">
+                      <h3>{product.name}</h3>
+                      <p className="product-region">Region: {product.region}</p>
+                      <p className="product-gi-tag">GI Tag: {product.gi_tag}</p>
+                      <p className="product-artisan">
+                        Artisan:{' '}
+                        {product.artisan_slug ? (
+                          <span className="product-artisan-link">{product.artisan_name}</span>
+                        ) : (
+                          product.artisan_name
+                        )}
+                      </p>
+                      {product.category && <p className="product-category">{product.category}</p>}
+                    </div>
+                    {product.price !== undefined && product.price !== null && (
+                      <p className="product-price">Rs. {product.price.toLocaleString()}</p>
                     )}
-                  </p>
-                  {product.category && <p className="product-category">{product.category}</p>}
-                  {product.price !== undefined && product.price !== null && (
-                    <p className="product-price">Rs. {product.price.toLocaleString()}</p>
-                  )}
+                  </div>
+                </Link>
+                <div className="product-purchase-actions">
+                  <button
+                    type="button"
+                    className={`btn ${isInCart ? 'btn-secondary' : 'btn-primary'} product-cart-btn`}
+                    onClick={() => {
+                      cartStorage.add(product);
+                      setCartIds(cartStorage.getAll().map((item) => item.productId));
+                    }}
+                  >
+                    {isInCart ? 'Add One More' : 'Add to Cart'}
+                  </button>
+                  <Link
+                    to="/cart"
+                    className="btn btn-secondary product-buy-btn"
+                    onClick={() => {
+                      cartStorage.add(product);
+                    }}
+                  >
+                    Buy Now
+                  </Link>
                 </div>
-              </Link>
+              </article>
             );
           })}
         </div>

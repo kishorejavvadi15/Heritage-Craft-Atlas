@@ -1,6 +1,7 @@
 const USERS_STORAGE_KEY = 'heritageAtlasUsers';
 const AUTH_STORAGE_KEY = 'isAuthenticated';
 const USER_EMAIL_STORAGE_KEY = 'userEmail';
+const ADMIN_EMAILS = ['admin@heritageatlas.com'];
 
 type StoredUser = {
   email: string;
@@ -94,5 +95,10 @@ export const authStorage = {
 
   getCurrentUserEmail() {
     return localStorage.getItem(USER_EMAIL_STORAGE_KEY);
+  },
+
+  isAdmin() {
+    const email = localStorage.getItem(USER_EMAIL_STORAGE_KEY);
+    return !!email && ADMIN_EMAILS.includes(email);
   },
 };

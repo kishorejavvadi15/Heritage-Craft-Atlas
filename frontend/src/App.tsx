@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import Home from './pages/Home';
 import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
+import Cart from './pages/Cart';
 import UploadProduct from './pages/UploadProduct';
 import MapView from './pages/MapView';
 import VerifyProduct from './pages/VerifyProduct';
@@ -13,6 +14,8 @@ import About from './pages/About';
 import Artisans from './pages/Artisans';
 import ArtisanDetail from './pages/ArtisanDetail';
 import SavedProducts from './pages/SavedProducts';
+import Orders from './pages/Orders';
+import AdminOrders from './pages/AdminOrders';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -38,9 +41,12 @@ function App() {
                       <Route path="/" element={<Home />} />
                       <Route path="/products" element={<Products />} />
                       <Route path="/products/:id" element={<ProductDetail />} />
+                      <Route path="/cart" element={<Cart />} />
                       <Route path="/upload" element={<UploadProduct />} />
                       <Route path="/map" element={<MapView />} />
                       <Route path="/saved" element={<SavedProducts />} />
+                      <Route path="/orders" element={<Orders />} />
+                      <Route path="/admin/orders" element={<AdminOrders />} />
                       <Route path="/artisans" element={<Artisans />} />
                       <Route path="/artisans/:slug" element={<ArtisanDetail />} />
                       <Route path="/verify" element={<VerifyProduct />} />

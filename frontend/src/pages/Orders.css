@@ -1,0 +1,177 @@
+.orders-page {
+  width: 100%;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.orders-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.orders-header h1,
+.orders-empty-state h2,
+.orders-help-panel h3 {
+  color: #2f3b66;
+  margin-bottom: 0.35rem;
+}
+
+.orders-header p,
+.orders-empty-state p,
+.orders-help-panel p,
+.order-card-top p,
+.order-product-row p,
+.admin-order-meta span {
+  color: #62719a;
+}
+
+.orders-empty-state,
+.order-card,
+.orders-help-panel {
+  background: #fff;
+  border: 1px solid rgba(102, 126, 234, 0.12);
+  box-shadow: 0 12px 30px rgba(102, 126, 234, 0.08);
+  border-radius: 18px;
+}
+
+.orders-empty-state,
+.orders-help-panel {
+  padding: 2rem;
+}
+
+.orders-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.order-card {
+  padding: 1.35rem;
+}
+
+.order-card-top,
+.order-summary-bar,
+.admin-order-controls {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+
+.order-id {
+  display: inline-block;
+  margin-bottom: 0.3rem;
+  color: #667eea;
+  font-weight: 700;
+}
+
+.order-status-badge {
+  padding: 0.5rem 0.85rem;
+  border-radius: 999px;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.status-confirmed,
+.status-packed {
+  background: #eef2ff;
+  color: #667eea;
+}
+
+.status-shipped {
+  background: #eef7ff;
+  color: #2c7be5;
+}
+
+.status-delivered {
+  background: #effcf1;
+  color: #2e8b57;
+}
+
+.status-cancelled {
+  background: #fff1f2;
+  color: #d14343;
+}
+
+.order-tracking-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 1.15rem 0;
+}
+
+.tracking-step,
+.tracking-cancelled {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #8a96bc;
+  font-weight: 700;
+}
+
+.tracking-step.complete {
+  color: #667eea;
+}
+
+.tracking-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.order-products {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem 0;
+  border-top: 1px solid #dbe2fb;
+  border-bottom: 1px solid #dbe2fb;
+}
+
+.order-product-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.order-product-row strong,
+.order-summary-bar strong {
+  color: #2f3b66;
+}
+
+.order-summary-bar,
+.admin-order-meta {
+  margin-top: 1rem;
+}
+
+.order-action-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.admin-order-meta {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-order-controls select {
+  border: 1px solid #dbe2fb;
+  background: #fff;
+  border-radius: 999px;
+  padding: 0.7rem 1rem;
+  color: #2f3b66;
+}
+
+@media (max-width: 900px) {
+  .orders-header,
+  .order-card-top,
+  .order-summary-bar,
+  .admin-order-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

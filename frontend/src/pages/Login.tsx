@@ -7,6 +7,42 @@ interface LoginProps {
   initialMode?: 'login' | 'register';
 }
 
+const CraftIcon: React.FC = () => (
+  <svg viewBox="0 0 24 24" aria-hidden="true" className="login-brand-icon">
+    <path
+      d="M9 4.5c0 1 .8 1.8 1.8 1.8h2.4c1 0 1.8-.8 1.8-1.8"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+    />
+    <path
+      d="M8 7c0 1.6 1.2 2.7 1.2 3.8 0 1-1.7 1.8-1.7 4.1 0 2.9 2 4.6 4.5 4.6s4.5-1.7 4.5-4.6c0-2.3-1.7-3.1-1.7-4.1C14.8 9.7 16 8.6 16 7"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path d="M8.8 14.4c1.8.9 4.6.9 6.4 0" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+  </svg>
+);
+
+const EyeIcon: React.FC<{ open: boolean }> = ({ open }) => (
+  <svg viewBox="0 0 24 24" aria-hidden="true" className="password-toggle-icon">
+    <path
+      d="M2 12C4.8 7.6 8 5.4 12 5.4S19.2 7.6 22 12c-2.8 4.4-6 6.6-10 6.6S4.8 16.4 2 12Z"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+    {!open && <path d="M4 4l16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />}
+  </svg>
+);
+
 const Login: React.FC<LoginProps> = ({ initialMode = 'login' }) => {
   const navigate = useNavigate();
   const [mode, setMode] = useState<'login' | 'register'>(initialMode);
@@ -18,6 +54,8 @@ const Login: React.FC<LoginProps> = ({ initialMode = 'login' }) => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     setMode(initialMode);
@@ -49,6 +87,8 @@ const Login: React.FC<LoginProps> = ({ initialMode = 'login' }) => {
       password: '',
       confirmPassword: '',
     });
+    setShowPassword(false);
+    setShowConfirmPassword(false);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -114,13 +154,10 @@ const Login: React.FC<LoginProps> = ({ initialMode = 'login' }) => {
     <div className="login-page">
       <div className="login-container">
         <div className="login-header">
-          <div className="login-logo">HA</div>
+          <div className="login-logo">
+            <CraftIcon />
+          </div>
           <h1>Heritage Atlas</h1>
-          <p>
-            {mode === 'login'
-              ? 'Welcome back! Please login with your registered details.'
-              : 'Create your account, then login with the same email and password.'}
-          </p>
         </div>
 
         <div className="auth-switch">
@@ -168,29 +205,51 @@ const Login: React.FC<LoginProps> = ({ initialMode = 'login' }) => {
 
           <div className="form-group">
             <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              placeholder="Enter your password"
-            />
+            <div className="password-field">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                placeholder="Enter your password"
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                title={showPassword ? 'Hide password' : 'Show password'}
+                onClick={() => setShowPassword((current) => !current)}
+              >
+                <EyeIcon open={showPassword} />
+              </button>
+            </div>
           </div>
 
           {mode === 'register' && (
             <div className="form-group">
               <label htmlFor="confirmPassword">Confirm Password</label>
-              <input
-                type="password"
-                id="confirmPassword"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required
-                placeholder="Confirm your password"
-              />
+              <div className="password-field">
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  required
+                  placeholder="Confirm your password"
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+                  title={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+                  onClick={() => setShowConfirmPassword((current) => !current)}
+                >
+                  <EyeIcon open={showConfirmPassword} />
+                </button>
+              </div>
             </div>
           )}
 

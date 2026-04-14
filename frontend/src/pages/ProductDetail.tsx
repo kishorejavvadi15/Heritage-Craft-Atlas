@@ -5,6 +5,7 @@ import SaveProductButton from '../components/SaveProductButton';
 import { getApiErrorMessage, productService, Product } from '../services/api';
 import { getProductDisplayImage, getProductFallbackImage } from '../utils/productImages';
 import { wishlistStorage } from '../utils/wishlist';
+import { cartStorage } from '../utils/cart';
 import './ProductDetail.css';
 
 const ProductDetail: React.FC = () => {
@@ -15,6 +16,7 @@ const ProductDetail: React.FC = () => {
   const [saved, setSaved] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState('');
   const [imageSrc, setImageSrc] = useState('');
+  const [cartCount, setCartCount] = useState(cartStorage.getCount());
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -73,6 +75,12 @@ const ProductDetail: React.FC = () => {
     generateQrCode();
   }, [product?.verification_qr_value]);
 
+  useEffect(() => {
+    const syncCartCount = () => setCartCount(cartStorage.getCount());
+    window.addEventListener('cart-updated', syncCartCount);
+    return () => window.removeEventListener('cart-updated', syncCartCount);
+  }, []);
+
   if (loading) {
     return <div className="loading">Loading product details...</div>;
   }
@@ -109,14 +117,47 @@ const ProductDetail: React.FC = () => {
         <div className="product-info-section">
           <div className="product-title-row">
             <h1>{product.name}</h1>
-            <SaveProductButton
-              saved={saved}
-              className={`save-product-button detail-save-button ${saved ? 'is-saved' : ''}`}
-              onToggle={() => {
-                const nextSaved = wishlistStorage.toggle(product._id);
-                setSaved(nextSaved);
-              }}
-            />
+            <div className="product-title-actions">
+              <SaveProductButton
+                saved={saved}
+                className={`save-product-button detail-save-button ${saved ? 'is-saved' : ''}`}
+                onToggle={() => {
+                  const nextSaved = wishlistStorage.toggle(product._id);
+                  setSaved(nextSaved);
+                }}
+              />
+              <Link to="/cart" className="btn btn-secondary">
+                Cart ({cartCount})
+              </Link>
+            </div>
+          </div>
+
+          <div className="purchase-panel">
+            <div>
+              <span className="purchase-label">Online Purchase</span>
+              <h2>{product.price !== undefined && product.price !== null ? `Rs. ${product.price.toLocaleString()}` : 'Price on request'}</h2>
+            </div>
+            <div className="purchase-actions">
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => {
+                  cartStorage.add(product);
+                  setCartCount(cartStorage.getCount());
+                }}
+              >
+                Add to Cart
+              </button>
+              <Link
+                to="/cart"
+                className="btn btn-secondary"
+                onClick={() => {
+                  cartStorage.add(product);
+                }}
+              >
+                Buy Now
+              </Link>
+            </div>
           </div>
 
           {product.barcode && (
