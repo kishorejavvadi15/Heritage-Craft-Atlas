@@ -12,6 +12,7 @@
     "start": "npm run start --workspace frontend",
     "build": "npm run build --workspace frontend",
     "test": "npm run test --workspace frontend",
-    "backend:start": "python -m uvicorn main:app --reload --app-dir backend"
+    "backend:start": "python -m uvicorn main:app --reload --app-dir backend",
+    "deploy": "powershell -ExecutionPolicy Bypass -File scripts/deploy.ps1"
   }
 }

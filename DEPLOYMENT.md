@@ -22,6 +22,29 @@ git commit -m "Prepare app for deployment"
 git push -u origin main
 ```
 
+## One-Command Deploy
+
+This repository now includes a PowerShell deploy script that:
+
+- builds the frontend
+- checks backend syntax
+- commits tracked changes
+- pushes `main` to GitHub
+
+Run it from the project root:
+
+```powershell
+npm run deploy -- --Message "Describe your change"
+```
+
+If you omit `--Message`, it uses:
+
+```text
+Deploy latest changes
+```
+
+The script intentionally skips untracked files so local scratch files are not accidentally deployed.
+
 ## Backend on Render
 
 Create a new Render Web Service from this repository and use:
