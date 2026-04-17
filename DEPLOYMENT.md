@@ -43,7 +43,7 @@ If you omit `--Message`, it uses:
 Deploy latest changes
 ```
 
-The script intentionally skips untracked files so local scratch files are not accidentally deployed.
+The script stages repository changes normally, and local scratch files like `live-*.js` stay out of deploys because they are ignored by Git.
 
 ## Backend on Render
 
